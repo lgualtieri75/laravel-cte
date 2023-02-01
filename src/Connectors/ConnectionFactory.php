@@ -5,6 +5,7 @@ namespace Staudenmeir\LaravelCte\Connectors;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory as Base;
 use InvalidArgumentException;
+use Staudenmeir\LaravelCte\Connections\CreatesQueryBuilder;
 use Staudenmeir\LaravelCte\Connections\MySqlConnection;
 use Staudenmeir\LaravelCte\Connections\PostgresConnection;
 use Staudenmeir\LaravelCte\Connections\SQLiteConnection;
@@ -32,6 +33,12 @@ class ConnectionFactory extends Base
 
         switch ($driver) {
             case 'mysql':
+                if (class_exists('Grimzy\LaravelMysqlSpatial\MysqlConnection')) {
+                    return new class($connection, $database, $prefix, $config)
+                        extends \Grimzy\LaravelMysqlSpatial\MysqlConnection {
+                        use CreatesQueryBuilder;
+                    };
+                }
                 return new MySqlConnection($connection, $database, $prefix, $config);
             case 'pgsql':
                 return new PostgresConnection($connection, $database, $prefix, $config);
